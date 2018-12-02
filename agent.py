@@ -1,5 +1,6 @@
 from gameobjects import GameObject
 from move import Move, Direction
+import math
 
 
 class Agent:
@@ -48,6 +49,8 @@ class Agent:
         Move.LEFT and Move.RIGHT changes the direction of the snake. In example, if the snake is facing north and the
         move left is made, the snake will go one block to the left and change its direction to west.
         """
+        print(self.get_closest_food(board, head_position))
+        print(self.heuristic_to_food(head_position, self.get_closest_food(board, head_position)))
         return Move.STRAIGHT
 
     def should_redraw_board(self):
@@ -85,4 +88,60 @@ class Agent:
         :param body_parts: the array of the locations of the body parts of the snake. The last element of this array
         represents the tail and the first element represents the body part directly following the head of the snake.
         When the snake runs in its own body the following holds: head_position in body_parts.
+        """
+
+    def get_food(self, board):
+        """This function will return an array consisting of tuples that represent the x and y coordinates of the
+        locations of food on the current board stat.
+
+        :param board: A two dimensional array representing the current board state. Get GameObject on location with
+        board[x][y].
+
+        :return: An array of tuples with the locations of the food represented with (x, y).
+        """
+        ret = []
+        for x in range(0, len(board)):
+            for y in range(0, len(board[x])):
+                if board[y][x] is GameObject.FOOD:
+                    ret.append((x, y))
+        return ret
+
+    def get_closest_food(self, board, head_position):
+        """This function gets the location of the closest food. It returns None if there is no food in the list.
+
+        :param board: A two dimensional array representing the current board state. Get GameObject on location with
+        board[x][y].
+        :param head_position: (x,y) of the position of the snakes head.
+        :return: (x,y) of the closest food location.
+        """
+        food = self.get_food(board)
+        closest = None
+        ret = None
+        for location in food:
+            contender = self.heuristic_to_food(head_position, location)
+            if closest is None or contender < closest:
+                closest = contender
+                ret = location
+        return ret
+
+    def heuristic_to_food(self, position, food_location):
+        """Function that gets the distance to the food
+
+        :param position: (x,y) of the current position of which the heuristic should be returned.
+        :param board: A two dimensional array representing the current board state. Get GameObject on location with
+        board[x][y].
+        :param food_location: Array with tuples (x,y) that represents the location of food on the board.
+        :return: The distance to the food
+        """
+        return math.sqrt(abs(food_location[0] - position[0]) ** 2 + abs(food_location[1] - position[1]) ** 2)
+
+    def make_route(self, food_locations, head_position, direction):
+        """This function will determine the route to the food with an A* algorithm.
+
+        :param food_locations: Array with tuples (x,y) that represents the location of food on the board.
+        :param head_position: (x,y) of the head of the snake.
+        :param direction: The direction the snake is currently facing. This can be either Direction.NORTH,
+        Direction.SOUTH, Direction.WEST, Direction.EAST. For instance, when the snake is facing east and a move
+        straight is returned, the snake wil move one cell to the right.
+        :return: Array that represents the route that must be taken
         """
