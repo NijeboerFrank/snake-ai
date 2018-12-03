@@ -128,8 +128,6 @@ class Agent:
         """Function that gets the distance to the food
 
         :param position: (x,y) of the current position of which the heuristic should be returned.
-        :param board: A two dimensional array representing the current board state. Get GameObject on location with
-        board[x][y].
         :param food_location: Array with tuples (x,y) that represents the location of food on the board.
         :return: The distance to the food
         """
